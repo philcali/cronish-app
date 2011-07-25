@@ -1,17 +1,56 @@
-# Cron DSL
+# Cronish App
 
-Making use of Scala parser combinators to build a cron dsl library.
+The cronish app can execute shell commands as a daemon.
 
-## The Projects
+## Installation
 
-The main project is split up into separate sub-projects:
+    cs philcali/cronish
 
-  * [core] is the `cronish` artifact: the underlying library
-  * [app] is the `cronish-app` artifact: the conscripted program
-  * [plugin] is the `cronish-sbt` artifact: the sbt plugin (interval execution)
+That's it!
 
-Follow the links for the appropriate README / usage.
+## Usage (Daemon)
 
-[app]: https://github.com/philcali/cronish/tree/master/app
-[plugin]: https://github.com/philcali/cronish/tree/master/plugin
-[core]: https://github.com/philcali/cronish/tree/master/core
+The cronish program's main function is a interval daemon very much
+like crontab is for linux machines. 
+
+To start the daemon, simply run:
+
+    > cronish -d
+
+To background the program:
+    
+    > cronish -d > /dev/null &
+
+This will silent the interval execution like a standard crontab
+
+Use the `-t` to isolate this cronish run. This means that for the duration of
+the run, cronish will run and forget it's tasks upon exit
+
+## Usage (Client)
+
+If you are interested in interpreting English into cronish, run:
+
+    > cronish <cronish>
+
+ie:
+
+    > cronish every 5 seconds
+    */5 * * * * * *
+
+    > cronish every midnight on the last Friday in July in the year 2012
+    0 0 0 * 7 5L 2012
+
+To add something to the *cronishtab*, the syntax is simple:
+
+    > cronish <command> runs <cronish>
+    > cronish wget http://google.com runs every minute
+
+To list the running tasks in *cronishtab*:
+
+    > cronish -l
+    {0}: wget http://google.com runs every minute
+
+To stop a currently executing task, and remove it for future reference:
+    
+    > cronish -r 0
+
