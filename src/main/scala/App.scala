@@ -2,13 +2,11 @@ package com.github.philcali
 package cronish.dsl
 package app
 
-import monido._
-
 import actors.Actor
 import scala.io.Source.{fromFile => open}
 import util.matching.Regex
 
-import java.io.{BufferedReader, InputStreamReader}
+import sys.process._
 
 class App extends xsbti.AppMain {
 
@@ -37,17 +35,9 @@ class App extends xsbti.AppMain {
     def act = {
       load
       
-      val monitor = FileMonido(conf) {
-        case ModifiedOrCreated(file) =>
-          val described = open(conf).getLines.toList
-          described.diff(list).foreach(this ! Add(_))
-          list.diff(described).foreach(this ! Remove(_))
-        case Deleted(path) => this ! Stop
-      }
-
       loopWhile(executing) {
         react {
-          case Stop => monitor.kill; shutdown() 
+          case Stop => shutdown() 
           case Add(line) => launch(line)
           case Remove(line) => 
             Scheduled.active.find(_.task.description == Some(line)).map(_.stop)
@@ -77,16 +67,7 @@ class App extends xsbti.AppMain {
   def launch(line: String) = { 
     val Task(cmd, syntax) = line
     syntax.cronOption.fold(println, { cron =>
-      job {
-        val rt = Runtime.getRuntime()
-        val pr = rt.exec(cmd)
-        val in = new BufferedReader(new InputStreamReader(pr.getInputStream))
-        def read(in: BufferedReader): Unit = in.readLine match {
-          case line: String => println(line); read(in)
-          case _ => 
-        }
-        read(in)
-      } describedAs Task(cmd, syntax) runs syntax 
+      job ( cmd ! ) describedAs Task(cmd, syntax) runs syntax 
     })
   }
 

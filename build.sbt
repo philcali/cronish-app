@@ -6,9 +6,10 @@ organization := "com.github.philcali"
 
 scalaVersion := "2.9.0"
 
+scalacOptions := Seq("-deprecation")
+
 libraryDependencies <++= (organization) (org => Seq (
   org %% "cronish" % "0.0.1",
-  org %% "monido-core" % "0.0.3",
   "org.scala-tools.sbt" % "launcher-interface" % "0.10.0"
 ))
 
