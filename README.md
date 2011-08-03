@@ -4,7 +4,7 @@ The cronish app can execute shell commands as a daemon.
 
 ## Installation
 
-    cs philcali/cronish
+    cs philcali/cronish-app
 
 That's it!
 
