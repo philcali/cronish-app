@@ -1,5 +1,5 @@
 [app]
-  version: 0.1.0
+  version: 0.1.1
   org: com.github.philcali
   name: cronish-app
   class: cronish.dsl.app.App
