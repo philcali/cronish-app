@@ -1,16 +1,16 @@
 name := "cronish-app"
 
-version := "0.1.1"
+version := "0.1.2"
 
 organization := "com.github.philcali"
 
-scalaVersion := "2.9.1"
+scalaVersion := "2.9.2"
 
 scalacOptions := Seq("-deprecation")
 
 libraryDependencies <++= (organization, sbtVersion) { (org, sv) => Seq (
-  org %% "cronish" % "0.1.1",
-  "org.scala-tools.sbt" %% "launcher-interface" % sv % "provided"
+  org %% "cronish" % "0.1.2",
+  "org.scala-sbt" % "launcher-interface" % sv % "provided"
 ) }
 
 publishTo <<= version { v =>

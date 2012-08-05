@@ -8,6 +8,15 @@ import util.matching.Regex
 import sys.process._
 
 class App extends xsbti.AppMain {
+  case class Exit(val code: Int) extends xsbti.Exit
+
+  def run (configuration: xsbti.AppConfiguration) = {
+    CronishApp.main(configuration.arguments)
+    Exit(0)
+  }
+}
+
+object CronishApp {
 
   case class Add(line: String)
   case class Remove(line: String)
@@ -24,21 +33,21 @@ class App extends xsbti.AppMain {
     def unapply(input: String) = {
       if(input.contains("-d")) {
         if(input.contains("-t")) Some(true) else Some(false)
-      } else None 
-    } 
+      } else None
+    }
   }
 
   class CronishDaemon(deleteOnExit: Boolean) extends Actor {
-    private var executing = true  
+    private var executing = true
 
     def act = {
       load
-      
+
       loopWhile(executing) {
         react {
-          case Stop => shutdown() 
+          case Stop => shutdown()
           case Add(line) => launch(line)
-          case Remove(line) => 
+          case Remove(line) =>
             Scheduled.active.find(_.task.description == Some(line)).map(_.stop)
         }
       }
@@ -50,7 +59,7 @@ class App extends xsbti.AppMain {
       executing = false
     }
 
-    def list = Scheduled.active.map(_.task.description.get) 
+    def list = Scheduled.active.map(_.task.description.get)
 
     def load = open(conf).getLines.foreach(launch)
   }
@@ -66,7 +75,7 @@ class App extends xsbti.AppMain {
   def launch(line: String) = { 
     val Task(cmd, syntax) = line
     syntax.cronOption.fold(println, { cron =>
-      job ( cmd ! ) describedAs Task(cmd, syntax) runs syntax 
+      job ( cmd ! ) describedAs Task(cmd, syntax) runs syntax
     })
   }
 
@@ -83,9 +92,7 @@ class App extends xsbti.AppMain {
 """)
   }
 
-  def run (configuration: xsbti.AppConfiguration) = {
-    val args = configuration.arguments
-
+  def main(args: Array[String]) = {
     if (args.contains("-h") || args.length == 0) printHelp
     else {
       args.mkString(" ") match {
@@ -95,7 +102,7 @@ class App extends xsbti.AppMain {
           println("Press Enter to quit")
           Console.readLine
           daemon ! Stop
-        case Pop(ix) => 
+        case Pop(ix) =>
           val lines = open(conf).getLines.zipWithIndex.toList
 
           val writer = new java.io.FileWriter(conf)
@@ -104,12 +111,12 @@ class App extends xsbti.AppMain {
           }
           writer.close()
           println("Successfully removed %s".format(ix))
-        case Task(cmd, syntax) => 
+        case Task(cmd, syntax) =>
           val writer = new java.io.FileWriter(conf, true)
           writer.write(Task(cmd, syntax) + "\n")
           writer.close()
           println("Successfully wrote %s" format (Task(cmd, syntax)))
-        case list if list.contains("-l") => 
+        case list if list.contains("-l") =>
           open(conf).getLines.zipWithIndex.foreach { tup =>
             println("{%d}: %s".format(tup._2, tup._1))
           }
@@ -118,9 +125,5 @@ class App extends xsbti.AppMain {
           }))
       }
     }
-
-    Exit(0)
   }
-
-  case class Exit(val code: Int) extends xsbti.Exit
 }

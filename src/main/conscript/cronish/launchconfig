@@ -1,10 +1,10 @@
 [app]
-  version: 0.1.1
+  version: 0.1.2
   org: com.github.philcali
   name: cronish-app
   class: cronish.dsl.app.App
 [scala]
-  version: 2.9.1 
+  version: 2.9.2
 [repositories]
   local
   maven-local
