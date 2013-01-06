@@ -54,7 +54,7 @@ object CronishApp {
     }
 
     private def shutdown() {
-      Scheduled.destroyAll
+      Scheduled.shutdown()
       if (deleteOnExit) new java.io.File(conf).delete
       executing = false
     }
@@ -72,7 +72,7 @@ object CronishApp {
     loc.getAbsolutePath
   }
 
-  def launch(line: String) = { 
+  def launch(line: String) = {
     val Task(cmd, syntax) = line
     syntax.cronOption.fold(println, { cron =>
       job ( cmd ! ) describedAs Task(cmd, syntax) runs syntax
@@ -85,9 +85,9 @@ object CronishApp {
     -h prints this help
     -d runs as a daemon
     -t delete task tab on daemon end (to be used with -d)
-    -l lists active tasks 
-    -r stops a task 
-    run commandline task for english 
+    -l lists active tasks
+    -r stops a task
+    run commandline task for english
     defaults to parsing english to cron
 """)
   }
