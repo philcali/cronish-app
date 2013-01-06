@@ -8,4 +8,4 @@
 [repositories]
   local
   maven-local
-  scala-tools-releases
+  maven-central
